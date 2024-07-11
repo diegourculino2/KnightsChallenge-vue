@@ -17,7 +17,7 @@
 
       <div class="row acoes-header">
         <div class="col">
-          <button type="button" class="btn btn-success" @click="showModal = true">
+          <button type="button" class="btn btn-success" @click="showModal = true; knightSaveSucess = false">
             <i class="bi bi-plus-circle"></i>
             Adicionar Knights
           </button>
@@ -32,6 +32,13 @@
 
       <div v-if="knightSaveSucess" class="alert alert-success alert-dismissible fade show margin-alert" role="alert">
         <strong>Sucesso!</strong> Cavaleiro salvo.
+        <button @click="knightSaveSucess = false" type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div v-if="knightSaveError" class="alert alert-danger alert-dismissible fade show margin-alert" role="alert">
+        <strong>Erro ao salvar Knight!</strong>
         <button @click="knightSaveSucess = false" type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -67,7 +74,7 @@
                   <button type="button" class="btn btn-primary btn-lg" @click="showModal = true">
                     <i class="bi bi-pencil-square"></i>
                   </button>
-                  <button type="button" class="btn btn-danger btn-lg margin-buttons" @click="showModal = true">
+                  <button type="button" class="btn btn-danger btn-lg margin-buttons" @click="knightDelete(knight.id)">
                     <i class="bi bi-trash"></i>
                   </button>
                 </div>
@@ -99,7 +106,8 @@ export default {
       showModal: false,
       knightsResult: null,
       salvando: false,
-      knightSaveSucess: false
+      knightSaveSucess: false,
+      knightSaveError: false
     }
   },
   components: {
@@ -129,15 +137,30 @@ export default {
     },
 
     knightSubmission(newKnight) {
-      console.log(newKnight);
       this.salvando = true;
+        const res = http.post("/knights", newKnight);
+        console.log(res)
 
+        setTimeout(() => {
+          this.salvando = false;
+          this.showModal = false;
+          this.knightSaveSucess = true;
+          this.getAllKnights();
+        }, "2000");
+      
+      
+    },
+
+    knightDelete(id){
+      this.contentLoad = 10;
+      this.loadListKnights = true;
+      this.knightsResult = null;
+      this.knightSaveSucess = false;
+      const res = http.delete(`/knights/${id}`);
+      console.log(res)
       setTimeout(() => {
-        this.salvando = false;
-        this.showModal = false;
-        this.knightSaveSucess = true;
-        this.getAllKnights();
-      }, "2000");
+          this.getAllKnights();
+        }, "3000");
     },
 
     async saveKnight(){
