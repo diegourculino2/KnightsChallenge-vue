@@ -23,7 +23,7 @@
           </button>
         </div>
         <div class="col d-flex flex-row-reverse">
-          <button type="button" class="btn btn-warning">
+          <button type="button" @click="getHeroes()" class="btn btn-warning">
             Hall Of Heroes
             <i class="bi bi-star-fill"></i>
           </button>
@@ -89,6 +89,11 @@
         @submitKnight="knightSubmission"
         :show="showModal" :salvando="salvando" @close="showModal = false" @save="saveKnight">
       </modal>
+
+      <!-- ModalHeroes -->
+      <modal-heroes
+        :show="showModalHeroes" :listHeroes="listHeroes" @close="showModalHeroes = false">
+      </modal-heroes>
  
   </div>
 </template>
@@ -96,6 +101,7 @@
 <script>
 import http from "./http-common";
 import Modal from './NewKnight.vue';
+import ModalHeroes from './Heroes.vue';
 
 export default {
   name: "App",
@@ -104,14 +110,17 @@ export default {
       contentLoad: null,
       loadListKnights: false,
       showModal: false,
+      showModalHeroes: false,
       knightsResult: null,
       salvando: false,
       knightSaveSucess: false,
-      knightSaveError: false
+      knightSaveError: false,
+      listHeroes: null
     }
   },
   components: {
-    Modal
+    Modal,
+    ModalHeroes
   },
   methods: {
     async getAllKnights() {
@@ -133,6 +142,23 @@ export default {
         this.knightsResult = result.data;
       } catch (err) {
         this.knightsResult = this.fortmatResponse(err.response?.data) || err;
+      }
+    },
+
+    async getHeroes() {
+      this.listHeroes = null;
+      try {
+        const res = await http.get("/knights/filter=hero");
+
+        const result = {
+          status: res.status + "-" + res.statusText,
+          headers: res.headers,
+          data: res.data,
+        };
+        this.listHeroes = result.data;
+        this.showModalHeroes = true;
+      } catch (err) {
+        this.listHeroes = this.fortmatResponse(err.response?.data) || err;
       }
     },
 
@@ -160,7 +186,7 @@ export default {
       console.log(res)
       setTimeout(() => {
           this.getAllKnights();
-        }, "3000");
+        }, "2000");
     },
 
     async saveKnight(){
