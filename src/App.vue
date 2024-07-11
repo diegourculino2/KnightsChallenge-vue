@@ -31,7 +31,7 @@
       </div>
 
       <div v-if="knightSaveSucess" class="alert alert-success alert-dismissible fade show margin-alert" role="alert">
-        <strong>Sucesso!</strong> Cavaleiro salvo.
+        <strong>Sucesso!</strong>
         <button @click="knightSaveSucess = false" type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -71,7 +71,7 @@
               </div>
               <div class="col d-flex flex-row-reverse">
                 <div row>
-                  <button type="button" class="btn btn-primary btn-lg" @click="showModal = true">
+                  <button type="button" class="btn btn-primary btn-lg" @click="getSingleKnight(knight.id)">
                     <i class="bi bi-pencil-square"></i>
                   </button>
                   <button type="button" class="btn btn-danger btn-lg margin-buttons" @click="knightDelete(knight.id)">
@@ -94,6 +94,12 @@
       <modal-heroes
         :show="showModalHeroes" :listHeroes="listHeroes" @close="showModalHeroes = false">
       </modal-heroes>
+
+      <!-- ModalSingleKnight -->
+      <modal-single-knight
+        @editKnightEvent="knightEdtion"
+        :show="showModalSingleKnight" :singleKnight="singleKnight" :editando="editando" @close="showModalSingleKnight = false">
+      </modal-single-knight>
  
   </div>
 </template>
@@ -102,6 +108,8 @@
 import http from "./http-common";
 import Modal from './NewKnight.vue';
 import ModalHeroes from './Heroes.vue';
+import ModalSingleKnight from './SingleKnight.vue';
+
 
 export default {
   name: "App",
@@ -111,16 +119,20 @@ export default {
       loadListKnights: false,
       showModal: false,
       showModalHeroes: false,
+      showModalSingleKnight: false,
       knightsResult: null,
       salvando: false,
+      editando: false,
       knightSaveSucess: false,
       knightSaveError: false,
-      listHeroes: null
+      listHeroes: null,
+      singleKnight: null
     }
   },
   components: {
     Modal,
-    ModalHeroes
+    ModalHeroes,
+    ModalSingleKnight
   },
   methods: {
     async getAllKnights() {
@@ -173,8 +185,20 @@ export default {
           this.knightSaveSucess = true;
           this.getAllKnights();
         }, "2000");
-      
-      
+    },
+
+    knightEdtion(newKnight){
+      const newNickname = { newNickname: newKnight.nickName}
+      this.editando = true;
+      const res = http.put(`/knights/${newKnight.id}`, newNickname);
+        console.log(res)
+
+        setTimeout(() => {
+          this.editando = false;
+          this.showModalSingleKnight = false;
+          this.knightSaveSucess = true;
+          this.getAllKnights();
+        }, "2000");
     },
 
     knightDelete(id){
@@ -187,6 +211,23 @@ export default {
       setTimeout(() => {
           this.getAllKnights();
         }, "2000");
+    },
+
+    async getSingleKnight(id){
+      this.knightSaveSucess = false;
+      this.singleKnight = null;
+      try {
+        const res = await http.get(`/knights/${id}`);
+        const result = {
+          status: res.status + "-" + res.statusText,
+          headers: res.headers,
+          data: res.data,
+        };
+        this.singleKnight = result.data;
+        this.showModalSingleKnight = true;
+      } catch (err) {
+        this.singleKnight = this.fortmatResponse(err.response?.data) || err;
+      }
     },
 
     async saveKnight(){
