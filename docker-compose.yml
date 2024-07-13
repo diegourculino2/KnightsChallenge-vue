@@ -1,0 +1,17 @@
+version: "3.8"
+
+networks:
+  knightschallenge_some-net:
+    external: true
+
+services:
+  knights.challenge-front:
+    build:
+      context: .
+    container_name: knights.challenge-front
+    ports:
+      - "4200:4200"
+    environment:
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+    networks:
+      - knightschallenge_some-net

@@ -62,11 +62,23 @@
                 <h5 class="card-title">{{ knight.name }}</h5>
                 <span class="badge badge-primary padding-badge">
                   <i class="bi bi-person-fill"></i>
-                  Idade: 25
+                  Idade: {{ knight.birthday }}
                 </span>
                 <span class="badge badge-dark padding-badge">
                   <i class="bi bi-shield-fill"></i>
-                  Armas: 2
+                  Armas: {{ knight.armas }}
+                </span>
+                <span class="badge badge-primary padding-badge">
+                  <i class="bi bi-person-fill"></i>
+                  Atributo: {{ knight.keyAttribute }}
+                </span>
+                <span class="badge badge-dark padding-badge">
+                  <i class="bi bi-shield-fill"></i>
+                  Ataque: {{ knight.ataque }}
+                </span>
+                <span class="badge badge-primary padding-badge">
+                  <i class="bi bi-shield-fill"></i>
+                  Experiência: {{ knight.experiencia }}
                 </span>
               </div>
               <div class="col d-flex flex-row-reverse">
@@ -143,7 +155,7 @@ export default {
           this.loadListKnights = false;
         }, "2000");
         const res = await http.get("/knights");
-
+        console.log(res);
         const result = {
           status: res.status + "-" + res.statusText,
           headers: res.headers,
@@ -161,6 +173,7 @@ export default {
       this.listHeroes = null;
       try {
         const res = await http.get("/knights/filter=hero");
+        console.log(res)
 
         const result = {
           status: res.status + "-" + res.statusText,
@@ -170,7 +183,7 @@ export default {
         this.listHeroes = result.data;
         this.showModalHeroes = true;
       } catch (err) {
-        this.listHeroes = this.fortmatResponse(err.response?.data) || err;
+          this.showModalHeroes = true;
       }
     },
 
@@ -218,6 +231,7 @@ export default {
       this.singleKnight = null;
       try {
         const res = await http.get(`/knights/${id}`);
+        console.log(res)
         const result = {
           status: res.status + "-" + res.statusText,
           headers: res.headers,
